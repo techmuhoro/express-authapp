@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  name      String
+  email     String      @unique
+  password  String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime?   @updatedAt
+  roles     userRoles[]
+}
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String
+  description String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @updatedAt
+  users       userRoles[]
+  permissions Permission[]
+}
+
+model userRoles {
+  id        Int       @id @default(autoincrement())
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+  role      Role      @relation(fields: [roleId], references: [id])
+  roleId    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@index([userId, roleId]) // user cannot be assigned to a role twice
+}
+
+model ActionCategory {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  actions     Action[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
+model Action {
+  id               Int            @id @default(autoincrement())
+  name             String
+  description      String
+  actionCategory   ActionCategory @relation(fields: [actionCategoryId], references: [id])
+  actionCategoryId Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime?      @updatedAt
+  permissions      Permission[]
+}
+
+model Permission {
+  id       Int    @id @default(autoincrement())
+  role     Role   @relation(fields: [roleId], references: [id])
+  roleId   Int
+  action   Action @relation(fields: [actionId], references: [id])
+  actionId Int
+}

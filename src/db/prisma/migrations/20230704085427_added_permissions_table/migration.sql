@@ -1,0 +1,8 @@
+-- CreateTable
+CREATE TABLE "Permission" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "roleId" INTEGER NOT NULL,
+    "actionId" INTEGER NOT NULL,
+    CONSTRAINT "Permission_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Permission_actionId_fkey" FOREIGN KEY ("actionId") REFERENCES "Action" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
