@@ -1,6 +1,4 @@
 import express from 'express';
-import type { Request, Response } from 'express';
-import { homeHanlder } from './controllers/session.controller';
 import { deserializeUser } from './middleware/auth.middleware';
 import registerRoutes from './routes';
 

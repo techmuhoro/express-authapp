@@ -1,10 +1,34 @@
 import type { Request, Response, NextFunction } from 'express';
 import { prisma } from '../../../utils/prisma.util';
+import { resPayload } from '../../../utils/response.util';
 
 interface ErrorObj {
     for: string;
     message: string;
     value?: any;
+}
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ * @returns
+ *
+ * Validate checks
+ *      1. userId is a valid number and user exists
+ *      2. roleId or roleIds is an array are valid number and they exists
+ */
+
+async function getUserRole(userRoleId: number) {
+    return await prisma.userRoles.findUnique({
+        where: {
+            id: userRoleId,
+        },
+    });
+}
+
+function isValidNumber(num: string | number) {
+    return !isNaN(Number(num));
 }
 export async function validatePayload(
     req: Request,
@@ -14,7 +38,8 @@ export async function validatePayload(
     const { userId, roleIds } = req.body;
     const errors: ErrorObj[] = [];
 
-    if (typeof userId !== 'number') {
+    // userId validatiom
+    if (!isValidNumber(userId)) {
         errors.push({
             for: 'userId',
             message: 'User id should be a number',
@@ -24,7 +49,7 @@ export async function validatePayload(
         // validate if user exists
         const user = await prisma.user.findUnique({
             where: {
-                id: userId,
+                id: Number(userId),
             },
         });
         if (!user) {
@@ -36,6 +61,7 @@ export async function validatePayload(
         }
     }
 
+    // Role id validation
     if (Array.isArray(roleIds)) {
         if (roleIds.length < 1) {
             errors.push({
@@ -71,7 +97,7 @@ export async function validatePayload(
             }
         }
     } else {
-        if (typeof roleIds !== 'number') {
+        if (!isValidNumber(roleIds)) {
             errors.push({
                 for: 'rolesIds',
                 message: 'Role id must be a number',
@@ -80,7 +106,7 @@ export async function validatePayload(
         } else {
             const role = await prisma.role.findUnique({
                 where: {
-                    id: roleIds,
+                    id: Number(roleIds),
                 },
             });
 
@@ -97,6 +123,35 @@ export async function validatePayload(
         return res
             .status(400)
             .json({ success: false, data: null, errors: errors });
+    }
+
+    return next();
+}
+
+export async function requireIdParam(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { id } = req.params;
+    console.log(id, typeof id);
+
+    if (!isValidNumber(id)) {
+        return res
+            .status(400)
+            .json(
+                resPayload(
+                    false,
+                    null,
+                    `Provide a valid user role id - (number)`
+                )
+            );
+    }
+
+    if (!(await getUserRole(Number(id)))) {
+        return res
+            .status(404)
+            .json(resPayload(false, null, `User role was not foud`));
     }
 
     return next();

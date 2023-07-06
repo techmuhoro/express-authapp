@@ -8,5 +8,6 @@ const router = express.Router();
 router.get('/', cb.listUserRoles);
 router.get('/:id', cb.viewUserRole);
 router.post('/', md.validatePayload, cb.createUserRoles);
+router.delete('/:id', md.requireIdParam, cb.deleteUserRole);
 
 export default router;
