@@ -12,14 +12,19 @@ export function signJwt(payload: JwtPayload, expiresIn: string) {
     return token;
 }
 
-export function verifyJwt(token: string) {
+interface ReturnPayload {
+    payload: JwtPayload | string;
+    expired: boolean;
+}
+
+export function verifyJwt(token: string): ReturnPayload {
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
 
         return { payload: decoded, expired: false };
     } catch (e: any) {
         return {
-            payload: null,
+            payload: null!,
             expired: e.message.includes('jwt expired'),
         };
     }

@@ -5,6 +5,6 @@ interface User {
 
 declare module Express {
     export interface Request {
-        user: User;
+        user: import('../modules/session/Identity.class');
     }
 }

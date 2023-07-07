@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.get('/', md.requireUser, cb.getSession);
 router.post('/', cb.createSession);
-router.delete('/', cb.deleteSession);
+router.delete('/', md.requireUser, cb.deleteSession);
 
 export default router;

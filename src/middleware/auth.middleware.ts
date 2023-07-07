@@ -1,5 +1,9 @@
 import type { Request, Response, NextFunction } from 'express';
 import { verifyJwt } from '../utils/jwt.util';
+import { prisma } from 'src/utils/prisma.util';
+import Identity from '../modules/session/Identity.class';
+import type { JwtPayload } from 'jsonwebtoken';
+import { resPayload } from '../utils/response.util';
 
 /**
  *
@@ -23,8 +27,9 @@ export function deserializeUser(
     const decoded = verifyJwt(token);
 
     if (decoded.payload) {
-        // @ts-ignore
-        req.user = decoded.payload;
+        if (typeof decoded.payload != 'string') {
+            req.user = new Identity(decoded.payload.id);
+        }
     }
 
     return next();
@@ -38,4 +43,22 @@ export function requireUser(req: Request, res: Response, next: NextFunction) {
     }
 
     return next();
+}
+
+export function requirePermission(permisionName: string) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        if (!(await req.user?.hasPermission(permisionName))) {
+            return res
+                .status(400)
+                .json(
+                    resPayload(
+                        false,
+                        null,
+                        `$You don not has permission - ${permisionName}`
+                    )
+                );
+        }
+
+        return next();
+    };
 }
