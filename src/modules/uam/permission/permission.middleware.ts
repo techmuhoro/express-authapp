@@ -7,6 +7,10 @@ interface ErrorObj {
     message: string;
     value?: any;
 }
+
+function isValidNumber(number: string | number) {
+    return !isNaN(Number(number));
+}
 export async function validatePostPayload(
     req: Request,
     res: Response,
@@ -93,6 +97,32 @@ export async function validatePostPayload(
 
     if (errors.length > 0) {
         return res.status(400).json(resPayload(false, null, errors));
+    }
+
+    return next();
+}
+
+export async function requireIdParam(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { id } = req.params;
+
+    if (!isValidNumber(id)) {
+        return res
+            .status(400)
+            .json(resPayload(false, null, `Provide a valid id - (number)`));
+    }
+
+    const permision = await prisma.permission.findUnique({
+        where: { id: Number(id) },
+    });
+
+    if (!permision) {
+        return res
+            .status(404)
+            .json(resPayload(false, null, `Permission was not found`));
     }
 
     return next();

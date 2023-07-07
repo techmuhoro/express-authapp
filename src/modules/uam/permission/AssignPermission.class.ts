@@ -13,6 +13,8 @@ class AssignPermission {
                     createdPermissions.push(permision);
                 }
             }
+
+            return createdPermissions;
         } else {
             if (!(await this.checkAssigned(roleId, actionId))) {
                 return await this.createPermission(roleId, actionId);
@@ -53,6 +55,16 @@ class AssignPermission {
         });
 
         return permission;
+    }
+
+    async revoke(permisionId: number) {
+        const deletedPermission = await prisma.permission.delete({
+            where: {
+                id: permisionId,
+            },
+        });
+
+        return deletedPermission;
     }
 }
 

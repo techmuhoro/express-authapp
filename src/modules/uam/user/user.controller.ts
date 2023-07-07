@@ -1,7 +1,7 @@
-import type { Request, Response } from 'express';
-import { prisma } from '../../../utils/prisma.util';
-import bcrypt, { hash } from 'bcrypt';
-import { resPayload } from '../../../utils/response.util';
+import type { Request, Response } from "express";
+import { prisma } from "../../../utils/prisma.util";
+import bcrypt, { hash } from "bcrypt";
+import { resPayload } from "../../../utils/response.util";
 
 export async function listUsers(req: Request, res: Response) {
     const users = await prisma.user.findMany();
@@ -15,7 +15,7 @@ export async function viewUser(req: Request, res: Response) {
     if (!Number(userId)) {
         return res.status(400).json({
             success: false,
-            errors: 'Id should be a number',
+            errors: "Id should be a number",
         });
     }
 
@@ -90,7 +90,7 @@ export async function changePassword(req: Request, res: Response) {
                 resPayload(
                     false,
                     null,
-                    'Could no update password. Contact system admin'
+                    "Could no update password. Contact system admin"
                 )
             );
     }

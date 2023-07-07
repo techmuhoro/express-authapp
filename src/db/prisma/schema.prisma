@@ -63,9 +63,11 @@ model Action {
 }
 
 model Permission {
-  id       Int    @id @default(autoincrement())
-  role     Role   @relation(fields: [roleId], references: [id])
-  roleId   Int
-  action   Action @relation(fields: [actionId], references: [id])
-  actionId Int
+  id        Int       @id @default(autoincrement())
+  role      Role      @relation(fields: [roleId], references: [id])
+  roleId    Int
+  action    Action    @relation(fields: [actionId], references: [id])
+  actionId  Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }

@@ -3,7 +3,16 @@ import { prisma } from '../../../utils/prisma.util';
 import { resPayload } from '../../../utils/response.util';
 
 export async function listActions(req: Request, res: Response) {
-    const actions = await prisma.action.findMany();
+    const actions = await prisma.action.findMany({
+        include: {
+            actionCategory: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+        },
+    });
 
     return res.json(resPayload(true, actions));
 }

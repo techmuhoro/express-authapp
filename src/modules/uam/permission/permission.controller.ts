@@ -9,21 +9,40 @@ export async function listPermission(req: Request, res: Response) {
     return res.json(resPayload(true, permissions));
 }
 
-export async function viewPermission(req: Request, res: Response) {}
+export async function viewPermission(req: Request, res: Response) {
+    const { id: permisionId } = req.params;
+
+    const permision = await prisma.permission.findUnique({
+        where: {
+            id: Number(permisionId),
+        },
+    });
+
+    return res.json(resPayload(true, permision));
+}
+
 export async function createPermission(req: Request, res: Response) {
     let { roleId, actionId } = req.body;
 
-    if (typeof actionId === 'string' || typeof actionId === 'number') {
-        actionId = Number(actionId);
-    }
+    // convert actionId to type numbers
+    const transformedActionIds = Array.isArray(actionId)
+        ? actionId.map((id) => Number(id))
+        : Number(actionId);
 
-    if (Array.isArray(actionId)) {
-        actionId = actionId.map(id => Number(id));
-    }
-
-    const data = await assignPermission.assign(Number(roleId), actionId);
+    const data = await assignPermission.assign(
+        Number(roleId),
+        transformedActionIds
+    );
 
     return res.json(resPayload(true, data));
 }
 export async function updatePermission(req: Request, res: Response) {}
-export async function deletePermission(req: Request, res: Response) {}
+export async function deletePermission(req: Request, res: Response) {
+    const { id: permisionId } = req.params;
+
+    const revokedPermission = await assignPermission.revoke(
+        Number(permisionId)
+    );
+
+    return res.json(resPayload(true, revokedPermission));
+}
