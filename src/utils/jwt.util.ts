@@ -6,7 +6,7 @@ const SECRET_KEY = 'Eh8WEZiuWg4VQourGv9SGL71zmjJNwQ5sqoDxDLXZdoYXoJwBMr/RA==';
 
 export function signJwt(payload: JwtPayload, expiresIn: string) {
     const token = jwt.sign(payload, SECRET_KEY, {
-        expiresIn: '1h',
+        expiresIn: expiresIn,
     });
 
     return token;
@@ -21,6 +21,7 @@ export function verifyJwt(token: string): ReturnPayload {
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
 
+        console.log(decoded);
         return { payload: decoded, expired: false };
     } catch (e: any) {
         return {

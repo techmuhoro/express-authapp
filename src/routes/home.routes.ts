@@ -16,11 +16,28 @@ function homeRoutes(app: Express) {
         return res.send('Hello Api!');
     });
 
-    app.get(
-        '/api/auth-test',
-        [requireUser, requirePermission('deleteUsers')],
-        testHandler
-    );
+    // app.get(
+    //     '/api/auth-test',
+    //     [requireUser, requirePermission('deleteUsers')],
+    //     testHandler
+    // );
+
+    app.get('/api/auth-test', [requireUser], testHandler);
+    app.get('/api/cookie', (req, res) => {
+        res.cookie('greet', 'Helo world', {
+            maxAge: 5 * 60 * 100,
+            httpOnly: true,
+        });
+        res.send('James Muhoro, the best sofware engineer in the world');
+    });
+
+    app.get('/api/cookie-get', (req, res) => {
+        const { greet } = req.cookies;
+
+        console.log(greet);
+
+        res.send('end');
+    });
 }
 
 async function testHandler(req: Request, res: Response) {

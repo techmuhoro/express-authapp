@@ -41,16 +41,37 @@ export async function createSession(req: Request, res: Response) {
             .json(resPayload(false, null, 'Invalid email or password'));
     }
 
+    // create a session
+    const session = await prisma.session.create({
+        data: {
+            valid: true,
+            userId: user.id,
+        },
+    });
+
     const accessToken = signJwt(
         { id: user.id, name: user.name, email: user.email },
-        '10h'
+        '20s'
     );
-    // const refreshToken = signJwt({ name: user.name, email: user.email }, '1y');
+
+    const refreshToken = signJwt({ sessionId: session.id }, '30d');
+
+    // set the cookies for authentication
+    res.cookie('accessToken', accessToken, {
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        httpOnly: true,
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+        maxAge: 12 * 30 * 24 * 60 * 60 * 1000, // cookie
+        httpOnly: true,
+    });
 
     return res.json(
         resPayload(true, {
             user: { name: user.name, email: user.email },
             accessToken,
+            refreshToken,
         })
     );
 }
